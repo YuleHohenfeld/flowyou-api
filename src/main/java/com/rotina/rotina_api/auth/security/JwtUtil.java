@@ -21,21 +21,21 @@ public class JwtUtil {
         this.expiracaoMs = expiracaoMs;
     }
 
-    public String gerarToken(String email, Long usuarioId) {
+    public String gerarToken(Long usuarioId, String email) {
         Date agora = new Date();
         Date expiracao = new Date(agora.getTime() + expiracaoMs);
 
         return Jwts.builder()
-                .subject(email)
-                .claim("usuarioId", usuarioId)
+                .subject(String.valueOf(usuarioId))
+                .claim("email", email)
                 .issuedAt(agora)
                 .expiration(expiracao)
                 .signWith(chave)
                 .compact();
     }
 
-    public String extrairEmail(String token) {
-        return parseClaims(token).getSubject();
+    public Long extrairUsuarioId(String token) {
+        return Long.valueOf(parseClaims(token).getSubject());
     }
 
     public boolean tokenValido(String token) {

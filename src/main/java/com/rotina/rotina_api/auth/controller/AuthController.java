@@ -14,12 +14,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/auth")
@@ -41,15 +43,18 @@ public class AuthController {
 
     @PostMapping("/login")
     public TokenResponseDTO login(@Valid @RequestBody LoginRequestDTO dto) {
+        String email = dto.email().trim().toLowerCase(Locale.ROOT);
+
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(dto.email(), dto.senha())
+                    new UsernamePasswordAuthenticationToken(email, dto.senha())
             );
-        } catch (BadCredentialsException e) {
+        } catch (AuthenticationException e) {
             throw new CredenciaisInvalidasException("E-mail ou senha inválidos.");
         }
 
-        var usuario = usuarioRepository.findByEmail(dto.email()).orElseThrow();
-        return new TokenResponseDTO(jwtUtil.gerarToken(usuario.getEmail(), usuario.getId()));
+        var usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new CredenciaisInvalidasException("E-mail ou senha inválidos."));
+        return new TokenResponseDTO(jwtUtil.gerarToken(usuario.getId(), usuario.getEmail()));
     }
 }
