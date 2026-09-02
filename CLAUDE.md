@@ -72,7 +72,25 @@ outros módulos via `@AuthenticationPrincipal UsuarioPrincipal`.
   `POST /auth/login`), `SecurityConfig`, `JwtUtil`, `JwtAuthenticationFilter`,
   `UserDetailsServiceImpl`, `UsuarioPrincipal`. **Identidade do JWT é o
   `usuarioId`** (imutável), e-mail é só claim informativa.
-- **`treino/`, `estudo/`, `financas/`, `recordacoes/`**: não iniciados.
+- **`treino/`** ✅ CRUD básico completo — `Esporte` (4 linhas fixas
+  seedadas por `EsporteSeeder` no startup: Academia, Corrida, Pular Corda,
+  Calistenia), `Treino` (nome + `tempoMinutos`/`distanciaKm` opcionais,
+  usados só por Corrida/Pular Corda) e `Exercicio` (nome, series,
+  repeticoes, tempoSegundos, midiaPath, ordem — usado só por
+  Academia/Calistenia). Nenhuma delas usa relacionamento JPA
+  (`@ManyToOne`/`@OneToMany`) — todo FK é um `Long` simples, e quem junta
+  os dados é o Controller, orquestrando `TreinoService` +
+  `EsporteService` + os Mappers. `TreinoRepository.findByIdAndUsuarioId`
+  já filtra pelo dono na query (devolve 404 pra quem não é dono, sem
+  precisar de checagem manual como fizemos em `usuario/`). Endpoints:
+  `GET /esportes`, `POST /treinos`, `GET /treinos`, `GET /treinos/{id}`.
+  **Falta**: endpoints de editar/excluir treino e exercício, e o upload
+  de mídia (vídeo/foto) do exercício (`midiaPath` só guarda o campo, sem
+  endpoint de upload ainda). GPS/rastreamento ao vivo de corrida foi
+  decidido como fora de escopo do backend — km/tempo são só campos
+  manuais, e computá-los via GPS (se um dia quiser) é 100% trabalho do
+  Flutter, sem mudar a API.
+- **`estudo/`, `financas/`, `recordacoes/`**: não iniciados.
 
 ## Decisões de segurança já tomadas (não refazer sem necessidade)
 
