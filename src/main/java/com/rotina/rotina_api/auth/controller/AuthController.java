@@ -1,5 +1,7 @@
 package com.rotina.rotina_api.auth.controller;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.rotina.rotina_api.auth.model.dto.LoginRequestDTO;
 import com.rotina.rotina_api.auth.model.dto.TokenResponseDTO;
 import com.rotina.rotina_api.auth.security.JwtUtil;
@@ -11,6 +13,7 @@ import com.rotina.rotina_api.usuario.repository.UsuarioRepository;
 import com.rotina.rotina_api.usuario.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Locale;
+import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -33,6 +38,7 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final Optional<FirebaseApp> firebaseApp;
 
     @PostMapping("/cadastro")
     public ResponseEntity<UsuarioResponseDTO> cadastrar(@Valid @RequestBody UsuarioCadastroRequestDTO dto) {
@@ -55,6 +61,21 @@ public class AuthController {
 
         var usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new CredenciaisInvalidasException("E-mail ou senha inválidos."));
-        return new TokenResponseDTO(jwtUtil.gerarToken(usuario.getId(), usuario.getEmail()));
+
+        String token = jwtUtil.gerarToken(usuario.getId(), usuario.getEmail());
+        return new TokenResponseDTO(token, gerarFirebaseToken(usuario.getId()));
+    }
+
+    private String gerarFirebaseToken(Long usuarioId) {
+        if (firebaseApp.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return FirebaseAuth.getInstance(firebaseApp.get()).createCustomToken(usuarioId.toString());
+        } catch (Exception e) {
+            log.error("Falha ao gerar firebaseToken pro usuario {}", usuarioId, e);
+            return null;
+        }
     }
 }
