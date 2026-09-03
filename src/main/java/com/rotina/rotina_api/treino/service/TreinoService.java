@@ -65,21 +65,28 @@ public class TreinoService {
 
     @Transactional
     public Exercicio atualizarExercicio(Long treinoId, Long exercicioId, Long usuarioId, ExercicioRequestDTO dto) {
-        buscarPorId(treinoId, usuarioId);
-        var exercicio = exercicioRepository.findByIdAndTreinoId(exercicioId, treinoId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Exercício não encontrado."));
-
+        var exercicio = buscarExercicioDoTreino(treinoId, exercicioId, usuarioId);
         exercicioMapper.atualizarEntity(dto, exercicio);
         return exercicioRepository.save(exercicio);
     }
 
     @Transactional
     public void excluirExercicio(Long treinoId, Long exercicioId, Long usuarioId) {
-        buscarPorId(treinoId, usuarioId);
-        var exercicio = exercicioRepository.findByIdAndTreinoId(exercicioId, treinoId)
-                .orElseThrow(() -> new RecursoNaoEncontradoException("Exercício não encontrado."));
-
+        var exercicio = buscarExercicioDoTreino(treinoId, exercicioId, usuarioId);
         exercicioRepository.delete(exercicio);
+    }
+
+    @Transactional
+    public Exercicio atualizarMidia(Long treinoId, Long exercicioId, Long usuarioId, String midiaPath) {
+        var exercicio = buscarExercicioDoTreino(treinoId, exercicioId, usuarioId);
+        exercicio.setMidiaPath(midiaPath);
+        return exercicioRepository.save(exercicio);
+    }
+
+    private Exercicio buscarExercicioDoTreino(Long treinoId, Long exercicioId, Long usuarioId) {
+        buscarPorId(treinoId, usuarioId);
+        return exercicioRepository.findByIdAndTreinoId(exercicioId, treinoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Exercício não encontrado."));
     }
 
     private void salvarExercicios(Long treinoId, List<ExercicioRequestDTO> exerciciosDto) {
