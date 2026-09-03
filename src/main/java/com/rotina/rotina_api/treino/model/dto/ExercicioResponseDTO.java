@@ -4,7 +4,7 @@ public record ExercicioResponseDTO(
         Long id,
         String nome,
         Integer series,
-        Integer repeticoes,
+        String repeticoes,
         Integer tempoSegundos,
         String midiaPath,
         Integer ordem
