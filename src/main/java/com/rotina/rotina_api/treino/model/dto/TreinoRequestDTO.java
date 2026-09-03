@@ -1,5 +1,6 @@
 package com.rotina.rotina_api.treino.model.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -17,6 +18,7 @@ public record TreinoRequestDTO(
 
         Double distanciaKm,
 
+        @Valid
         List<ExercicioRequestDTO> exercicios
 ) {
 }

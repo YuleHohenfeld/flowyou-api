@@ -4,7 +4,9 @@ import com.rotina.rotina_api.shared.exception.RecursoNaoEncontradoException;
 import com.rotina.rotina_api.treino.model.Exercicio;
 import com.rotina.rotina_api.treino.model.Treino;
 import com.rotina.rotina_api.treino.model.dto.ExercicioRequestDTO;
+import com.rotina.rotina_api.treino.model.dto.TreinoRequestDTO;
 import com.rotina.rotina_api.treino.model.mapper.ExercicioMapper;
+import com.rotina.rotina_api.treino.model.mapper.TreinoMapper;
 import com.rotina.rotina_api.treino.repository.ExercicioRepository;
 import com.rotina.rotina_api.treino.repository.TreinoRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,18 +22,12 @@ public class TreinoService {
     private final TreinoRepository treinoRepository;
     private final ExercicioRepository exercicioRepository;
     private final ExercicioMapper exercicioMapper;
+    private final TreinoMapper treinoMapper;
 
     @Transactional
     public Treino cadastrar(Treino treino, List<ExercicioRequestDTO> exerciciosDto) {
         var treinoSalvo = treinoRepository.save(treino);
-
-        if (exerciciosDto != null) {
-            int ordem = 1;
-            for (ExercicioRequestDTO exercicioDto : exerciciosDto) {
-                exercicioRepository.save(exercicioMapper.toEntity(exercicioDto, treinoSalvo.getId(), ordem++));
-            }
-        }
-
+        salvarExercicios(treinoSalvo.getId(), exerciciosDto);
         return treinoSalvo;
     }
 
@@ -46,5 +42,33 @@ public class TreinoService {
 
     public List<Exercicio> listarExercicios(Long treinoId) {
         return exercicioRepository.findByTreinoIdOrderByOrdem(treinoId);
+    }
+
+    @Transactional
+    public Treino atualizar(Long id, Long usuarioId, TreinoRequestDTO dto) {
+        var treino = buscarPorId(id, usuarioId);
+        treinoMapper.atualizarEntity(dto, treino);
+        var treinoAtualizado = treinoRepository.save(treino);
+
+        exercicioRepository.deleteByTreinoId(id);
+        salvarExercicios(id, dto.exercicios());
+
+        return treinoAtualizado;
+    }
+
+    @Transactional
+    public void excluir(Long id, Long usuarioId) {
+        var treino = buscarPorId(id, usuarioId);
+        exercicioRepository.deleteByTreinoId(id);
+        treinoRepository.delete(treino);
+    }
+
+    private void salvarExercicios(Long treinoId, List<ExercicioRequestDTO> exerciciosDto) {
+        if (exerciciosDto != null) {
+            int ordem = 1;
+            for (ExercicioRequestDTO exercicioDto : exerciciosDto) {
+                exercicioRepository.save(exercicioMapper.toEntity(exercicioDto, treinoId, ordem++));
+            }
+        }
     }
 }
