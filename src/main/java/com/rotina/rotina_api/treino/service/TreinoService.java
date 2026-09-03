@@ -63,6 +63,25 @@ public class TreinoService {
         treinoRepository.delete(treino);
     }
 
+    @Transactional
+    public Exercicio atualizarExercicio(Long treinoId, Long exercicioId, Long usuarioId, ExercicioRequestDTO dto) {
+        buscarPorId(treinoId, usuarioId);
+        var exercicio = exercicioRepository.findByIdAndTreinoId(exercicioId, treinoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Exercício não encontrado."));
+
+        exercicioMapper.atualizarEntity(dto, exercicio);
+        return exercicioRepository.save(exercicio);
+    }
+
+    @Transactional
+    public void excluirExercicio(Long treinoId, Long exercicioId, Long usuarioId) {
+        buscarPorId(treinoId, usuarioId);
+        var exercicio = exercicioRepository.findByIdAndTreinoId(exercicioId, treinoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Exercício não encontrado."));
+
+        exercicioRepository.delete(exercicio);
+    }
+
     private void salvarExercicios(Long treinoId, List<ExercicioRequestDTO> exerciciosDto) {
         if (exerciciosDto != null) {
             int ordem = 1;

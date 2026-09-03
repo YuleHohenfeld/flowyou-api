@@ -9,7 +9,7 @@ public record ExercicioRequestDTO(
 
         Integer series,
 
-        Integer repeticoes,
+        String repeticoes,
 
         Integer tempoSegundos
 ) {

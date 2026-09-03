@@ -33,7 +33,7 @@ public class Exercicio {
 
     private Integer series;
 
-    private Integer repeticoes;
+    private String repeticoes;
 
     @Column(name = "tempo_segundos")
     private Integer tempoSegundos;
