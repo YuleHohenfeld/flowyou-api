@@ -1,6 +1,7 @@
 package com.rotina.rotina_api.treino.service;
 
 import com.rotina.rotina_api.shared.exception.RecursoNaoEncontradoException;
+import com.rotina.rotina_api.shared.storage.SupabaseStorageService;
 import com.rotina.rotina_api.treino.model.Exercicio;
 import com.rotina.rotina_api.treino.model.Treino;
 import com.rotina.rotina_api.treino.model.dto.ExercicioRequestDTO;
@@ -23,6 +24,7 @@ public class TreinoService {
     private final ExercicioRepository exercicioRepository;
     private final ExercicioMapper exercicioMapper;
     private final TreinoMapper treinoMapper;
+    private final SupabaseStorageService supabaseStorageService;
 
     @Transactional
     public Treino cadastrar(Treino treino, List<ExercicioRequestDTO> exerciciosDto) {
@@ -81,6 +83,13 @@ public class TreinoService {
         var exercicio = buscarExercicioDoTreino(treinoId, exercicioId, usuarioId);
         exercicio.setMidiaPath(midiaPath);
         return exercicioRepository.save(exercicio);
+    }
+
+    public SupabaseStorageService.UrlDeUpload gerarUrlDeUploadMidia(Long treinoId, Long exercicioId, Long usuarioId,
+                                                                       String nomeArquivo) {
+        var exercicio = buscarExercicioDoTreino(treinoId, exercicioId, usuarioId);
+        String caminho = "exercicios/%d/%d/%d-%s".formatted(usuarioId, exercicio.getId(), System.currentTimeMillis(), nomeArquivo);
+        return supabaseStorageService.gerarUrlDeUpload(caminho);
     }
 
     private Exercicio buscarExercicioDoTreino(Long treinoId, Long exercicioId, Long usuarioId) {

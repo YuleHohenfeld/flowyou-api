@@ -2,6 +2,8 @@ package com.rotina.rotina_api.treino.controller;
 
 import com.rotina.rotina_api.auth.security.UsuarioPrincipal;
 import com.rotina.rotina_api.treino.model.dto.ExercicioMidiaRequestDTO;
+import com.rotina.rotina_api.treino.model.dto.ExercicioMidiaUploadUrlRequestDTO;
+import com.rotina.rotina_api.treino.model.dto.ExercicioMidiaUploadUrlResponseDTO;
 import com.rotina.rotina_api.treino.model.dto.ExercicioRequestDTO;
 import com.rotina.rotina_api.treino.model.dto.ExercicioResponseDTO;
 import com.rotina.rotina_api.treino.model.mapper.ExercicioMapper;
@@ -13,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,5 +50,13 @@ public class ExercicioController {
                                                  @AuthenticationPrincipal UsuarioPrincipal principal) {
         var exercicio = treinoService.atualizarMidia(treinoId, id, principal.getUsuarioId(), dto.midiaPath());
         return exercicioMapper.toResponseDTO(exercicio);
+    }
+
+    @PostMapping("/{id}/midia/upload-url")
+    public ExercicioMidiaUploadUrlResponseDTO gerarUrlDeUploadMidia(@PathVariable Long treinoId, @PathVariable Long id,
+                                                                       @Valid @RequestBody ExercicioMidiaUploadUrlRequestDTO dto,
+                                                                       @AuthenticationPrincipal UsuarioPrincipal principal) {
+        var resultado = treinoService.gerarUrlDeUploadMidia(treinoId, id, principal.getUsuarioId(), dto.nomeArquivo());
+        return new ExercicioMidiaUploadUrlResponseDTO(resultado.uploadUrl(), resultado.midiaPath());
     }
 }
