@@ -8,4 +8,6 @@ import java.util.List;
 public interface ExercicioRepository extends JpaRepository<Exercicio, Long> {
 
     List<Exercicio> findByTreinoIdOrderByOrdem(Long treinoId);
+
+    void deleteByTreinoId(Long treinoId);
 }

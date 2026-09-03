@@ -13,9 +13,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,6 +56,21 @@ public class TreinoController {
     public TreinoResponseDTO buscarPorId(@PathVariable Long id, @AuthenticationPrincipal UsuarioPrincipal principal) {
         var treino = treinoService.buscarPorId(id, principal.getUsuarioId());
         return montarResponse(treino);
+    }
+
+    @PutMapping("/{id}")
+    public TreinoResponseDTO atualizar(@PathVariable Long id, @Valid @RequestBody TreinoRequestDTO dto,
+                                         @AuthenticationPrincipal UsuarioPrincipal principal) {
+        esporteService.buscarPorId(dto.esporteId());
+
+        var treinoAtualizado = treinoService.atualizar(id, principal.getUsuarioId(), dto);
+        return montarResponse(treinoAtualizado);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id, @AuthenticationPrincipal UsuarioPrincipal principal) {
+        treinoService.excluir(id, principal.getUsuarioId());
+        return ResponseEntity.noContent().build();
     }
 
     private TreinoResponseDTO montarResponse(Treino treino) {
