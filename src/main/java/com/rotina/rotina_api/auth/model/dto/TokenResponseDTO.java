@@ -1,4 +1,4 @@
 package com.rotina.rotina_api.auth.model.dto;
 
-public record TokenResponseDTO(String token) {
+public record TokenResponseDTO(String token, String refreshToken) {
 }

@@ -66,6 +66,13 @@ public class TreinoService {
     }
 
     @Transactional
+    public Exercicio adicionarExercicio(Long treinoId, Long usuarioId, ExercicioRequestDTO dto) {
+        buscarPorId(treinoId, usuarioId);
+        int ordem = exercicioRepository.countByTreinoId(treinoId) + 1;
+        return exercicioRepository.save(exercicioMapper.toEntity(dto, treinoId, ordem));
+    }
+
+    @Transactional
     public Exercicio atualizarExercicio(Long treinoId, Long exercicioId, Long usuarioId, ExercicioRequestDTO dto) {
         var exercicio = buscarExercicioDoTreino(treinoId, exercicioId, usuarioId);
         exercicioMapper.atualizarEntity(dto, exercicio);

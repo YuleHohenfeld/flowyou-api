@@ -10,6 +10,7 @@ import com.rotina.rotina_api.treino.model.mapper.ExercicioMapper;
 import com.rotina.rotina_api.treino.service.TreinoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +29,14 @@ public class ExercicioController {
 
     private final TreinoService treinoService;
     private final ExercicioMapper exercicioMapper;
+
+    @PostMapping
+    public ResponseEntity<ExercicioResponseDTO> adicionar(@PathVariable Long treinoId,
+                                                             @Valid @RequestBody ExercicioRequestDTO dto,
+                                                             @AuthenticationPrincipal UsuarioPrincipal principal) {
+        var exercicio = treinoService.adicionarExercicio(treinoId, principal.getUsuarioId(), dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(exercicioMapper.toResponseDTO(exercicio));
+    }
 
     @PutMapping("/{id}")
     public ExercicioResponseDTO atualizar(@PathVariable Long treinoId, @PathVariable Long id,

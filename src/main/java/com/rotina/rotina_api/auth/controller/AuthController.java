@@ -1,8 +1,10 @@
 package com.rotina.rotina_api.auth.controller;
 
 import com.rotina.rotina_api.auth.model.dto.LoginRequestDTO;
+import com.rotina.rotina_api.auth.model.dto.RefreshRequestDTO;
 import com.rotina.rotina_api.auth.model.dto.TokenResponseDTO;
 import com.rotina.rotina_api.auth.security.JwtUtil;
+import com.rotina.rotina_api.auth.security.RefreshTokenService;
 import com.rotina.rotina_api.shared.exception.CredenciaisInvalidasException;
 import com.rotina.rotina_api.usuario.model.dto.UsuarioCadastroRequestDTO;
 import com.rotina.rotina_api.usuario.model.dto.UsuarioResponseDTO;
@@ -33,6 +35,7 @@ public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/cadastro")
     public ResponseEntity<UsuarioResponseDTO> cadastrar(@Valid @RequestBody UsuarioCadastroRequestDTO dto) {
@@ -55,6 +58,21 @@ public class AuthController {
 
         var usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new CredenciaisInvalidasException("E-mail ou senha inválidos."));
-        return new TokenResponseDTO(jwtUtil.gerarToken(usuario.getId(), usuario.getEmail()));
+
+        String token = jwtUtil.gerarToken(usuario.getId(), usuario.getEmail());
+        String refreshToken = refreshTokenService.gerar(usuario.getId());
+        return new TokenResponseDTO(token, refreshToken);
+    }
+
+    @PostMapping("/refresh")
+    public TokenResponseDTO refresh(@Valid @RequestBody RefreshRequestDTO dto) {
+        Long usuarioId = refreshTokenService.validarERevogar(dto.refreshToken());
+
+        var usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new CredenciaisInvalidasException("Refresh token inválido ou expirado."));
+
+        String novoToken = jwtUtil.gerarToken(usuario.getId(), usuario.getEmail());
+        String novoRefreshToken = refreshTokenService.gerar(usuario.getId());
+        return new TokenResponseDTO(novoToken, novoRefreshToken);
     }
 }
