@@ -95,7 +95,8 @@ public class TreinoService {
     public SupabaseStorageService.UrlDeUpload gerarUrlDeUploadMidia(Long treinoId, Long exercicioId, Long usuarioId,
                                                                        String nomeArquivo) {
         var exercicio = buscarExercicioDoTreino(treinoId, exercicioId, usuarioId);
-        String caminho = "exercicios/%d/%d/%d-%s".formatted(usuarioId, exercicio.getId(), System.currentTimeMillis(), nomeArquivo);
+        String nomeSanitizado = SupabaseStorageService.sanitizarNomeArquivo(nomeArquivo);
+        String caminho = "exercicios/%d/%d/%d-%s".formatted(usuarioId, exercicio.getId(), System.currentTimeMillis(), nomeSanitizado);
         return supabaseStorageService.gerarUrlDeUpload(caminho);
     }
 

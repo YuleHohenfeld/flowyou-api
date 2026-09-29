@@ -7,6 +7,7 @@ public record LembreteResponseDTO(
         String destinatario,
         LocalDate data,
         String descricao,
-        String foto
+        String foto,
+        String link
 ) {
 }

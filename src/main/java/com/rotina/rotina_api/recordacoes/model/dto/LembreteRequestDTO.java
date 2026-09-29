@@ -15,6 +15,8 @@ public record LembreteRequestDTO(
 
         String descricao,
 
-        String foto
+        String foto,
+
+        String link
 ) {
 }

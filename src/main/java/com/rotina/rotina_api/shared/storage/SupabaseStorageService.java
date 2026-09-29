@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.text.Normalizer;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -41,6 +42,17 @@ public class SupabaseStorageService {
                 .expiration(Date.from(agora.plus(3650, ChronoUnit.DAYS)))
                 .signWith(chave)
                 .compact();
+    }
+
+    /**
+     * Remove espaço/acento/caractere especial do nome do arquivo antes de virar
+     * caminho de URL — sem isso, a URL assinada devolvida pelo Supabase vem com
+     * espaço/acento cru (não percent-encoded), o que quebra o upload no cliente.
+     */
+    public static String sanitizarNomeArquivo(String nomeArquivo) {
+        String semAcento = Normalizer.normalize(nomeArquivo, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "");
+        return semAcento.replaceAll("[^a-zA-Z0-9._-]", "_");
     }
 
     public UrlDeUpload gerarUrlDeUpload(String caminho) {

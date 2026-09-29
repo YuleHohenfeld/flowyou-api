@@ -41,4 +41,7 @@ public class Lembrete {
 
     @Column
     private String foto;
+
+    @Column
+    private String link;
 }

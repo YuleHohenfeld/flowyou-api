@@ -21,7 +21,8 @@ public class RecordacaoService {
     private final SupabaseStorageService supabaseStorageService;
 
     public SupabaseStorageService.UrlDeUpload gerarUrlDeUpload(Long usuarioId, String nomeArquivo) {
-        String caminho = "recordacoes/%d/%d-%s".formatted(usuarioId, System.currentTimeMillis(), nomeArquivo);
+        String nomeSanitizado = SupabaseStorageService.sanitizarNomeArquivo(nomeArquivo);
+        String caminho = "recordacoes/%d/%d-%s".formatted(usuarioId, System.currentTimeMillis(), nomeSanitizado);
         return supabaseStorageService.gerarUrlDeUpload(caminho);
     }
 
